@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+FROM python:3.11-slim
 
 WORKDIR /app
 
@@ -13,3 +13,4 @@ ENV PORT=5000
 EXPOSE 5000
 
 CMD ["python", "app.py"]
+
