@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="recent-card">
+
+  <!-- HEADER -->
+  <div class="d-flex justify-content-between align-items-start">
+    <div>
+      <h4>#{{ ticket[0] }} — {{ ticket[1] }}</h4>
+      <div class="small-muted">Created by {{ ticket[6] }}</div>
+    </div>
+
+    <div class="text-end">
+      <div class="badge bg-light text-dark">{{ ticket[2] }}</div>
+      <div class="badge bg-warning text-dark ms-1">{{ ticket[3] }}</div>
+      <div class="badge bg-secondary text-white ms-1">{{ ticket[4] }}</div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- DESCRIPTION -->
+  <p><strong>Description</strong></p>
+  <p class="small-muted">{{ ticket[5] }}</p>
+
+  <p><strong>Assigned To:</strong> {{ ticket[7] or 'Unassigned' }}</p>
+
+  {% if session.get('role') in ['IT Staff','Admin'] %}
+  <hr>
+  <div class="row">
+
+    <!-- STATUS -->
+    <div class="col-md-4">
+      <form method="POST" action="{{ url_for('update_status', ticket_id=ticket[0]) }}">
+        <label class="form-label">Update Status</label>
+        <select name="status" class="form-select">
+          <option value="Open" {% if ticket[4]=='Open' %}selected{% endif %}>Open</option>
+          <option value="In Progress" {% if ticket[4]=='In Progress' %}selected{% endif %}>In Progress</option>
+          <option value="Resolved" {% if ticket[4]=='Resolved' %}selected{% endif %}>Resolved</option>
+        </select>
+        <button class="btn btn-success btn-sm mt-2">Update</button>
+      </form>
+    </div>
+
+    <!-- ASSIGN -->
+    <div class="col-md-4">
+      <form method="POST" action="{{ url_for('assign', ticket_id=ticket[0]) }}">
+        <label class="form-label">Assign to (username)</label>
+        <input name="assigned_to" class="form-control" value="{{ ticket[7] or '' }}">
+        <button class="btn btn-warning btn-sm mt-2">Assign</button>
+      </form>
+    </div>
+
+    <!-- ADD NOTE -->
+    <div class="col-md-4">
+      <form method="POST" action="{{ url_for('add_note', ticket_id=ticket[0]) }}">
+        <label class="form-label">Add Note</label>
+        <textarea name="note" class="form-control" rows="2" required></textarea>
+
+        <div class="form-check mt-2">
+          <input class="form-check-input" type="checkbox" name="is_internal">
+          <label class="form-check-label">Internal Note</label>
+        </div>
+
+        <button class="btn btn-secondary btn-sm mt-2">Add Note</button>
+      </form>
+    </div>
+
+  </div>
+  {% endif %}
+
+  <hr>
+
+  <!-- NOTES + ACTIVITY -->
+  <h6 class="mb-3">Notes & Activity</h6>
+
+  <div class="comments-container">
+
+    {% for c in comments %}
+    <div class="comment-card {% if c[4] == 1 %}internal{% endif %}">
+
+      <div class="comment-header">
+
+        <strong>{{ c[1] }}</strong>
+        <span class="timestamp">{{ c[3] }}</span>
+
+        {% if session.get('role') in ['IT Staff','Admin'] %}
+        <div class="comment-actions">
+
+          <!-- EDIT BUTTON -->
+          <button class="btn btn-sm btn-outline-secondary"
+                  onclick='openEditModal({{ c[0] }}, {{ c[2] | tojson }})'>
+            Edit
+          </button>
+
+          <!-- DELETE -->
+          <a class="btn btn-sm btn-outline-danger"
+             href="/delete_note/{{ c[0] }}"
+             onclick="return confirm('Delete this note?')">
+            Delete
+          </a>
+
+        </div>
+        {% endif %}
+
+      </div>
+
+      <p class="comment-text mt-2">{{ c[2] }}</p>
+
+      {% if c[4] == 1 %}
+      <span class="badge bg-warning text-dark">Internal</span>
+      {% endif %}
+
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="mt-3">
+    <a href="{{ url_for('view_tickets') }}" class="btn btn-outline-secondary btn-sm">Back</a>
+  </div>
+
+</div>
+
+
+<!-- EDIT MODAL -->
+<div class="modal" id="editModal" tabindex="-1">
+  <div class="modal-dialog">
+    <form method="POST" id="editForm">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h5>Edit Note</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <textarea id="editText" name="new_text" class="form-control" rows="3"></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-primary">Save</button>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openEditModal(id, text) {
+  // safe because text uses |tojson
+  document.getElementById("editText").value = text;
+  document.getElementById("editForm").action = "/edit_note/" + id;
+
+  new bootstrap.Modal(document.getElementById("editModal")).show();
+}
+</script>
+
+
+<style>
+
+/* layout */
+.comments-container { margin-top: 10px; }
+
+.comment-card {
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  border-left: 5px solid #0d6efd;
+}
+
+.comment-card.internal {
+  background: #fff2cc;
+  border-left-color: #e6a700;
+}
+
+/* header */
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.timestamp {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* actions */
+.comment-actions button,
+.comment-actions a {
+  margin-left: 5px;
+  padding: 2px 6px;
+}
+
+</style>
+
+{% endblock %}

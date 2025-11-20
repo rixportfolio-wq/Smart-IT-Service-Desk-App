@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Smart IT Service Desk</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#f4f6fb;
+      --card:#ffffff;
+      --accent:#0f63ff;
+      --muted:#bebebe;
+      --sidebar:#ffffff;
+      --shadow: 0 6px 18px rgba(17,24,39,0.06);
+    }
+
+    body { background: var(--bg); font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+    .app-shell { display:flex; min-height:100vh; gap:20px; padding:18px; }
+    .sidebar {
+      width:260px;
+      background:var(--sidebar);
+      border-radius:12px;
+      padding:18px;
+      box-shadow: var(--shadow);
+      height:calc(100vh - 36px);
+      position:sticky;
+      top:18px;
+    }
+    .sidebar h4 { color:var(--accent); font-weight:700; }
+    .nav-section { margin-top:12px; }
+    .nav-link { color:#1f2937; font-weight:600; padding:10px 12px; border-radius:8px; display:flex; align-items:center; gap:10px; }
+    .nav-link .bi { font-size:18px; color:var(--muted); }
+    .nav-link.active, .nav-link:hover { background:#f0f5ff; color:var(--accent); text-decoration:none; }
+
+    .main-area { flex:1; }
+    .top-hero {
+      background: linear-gradient(90deg,#0f63ff,#2171ff);
+      color:white;
+      border-radius:14px;
+      padding:28px;
+      box-shadow: 0 8px 30px rgba(15,99,255,0.12);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:20px;
+    }
+    .hero-left h1 { margin:0; font-size:28px; font-weight:700; }
+    .hero-left p { margin:0; opacity:.92; }
+
+    .card-stats .card { border-radius:12px; box-shadow: var(--shadow); }
+    .recent-card, .quick-card { border-radius:12px; box-shadow: var(--shadow); background:var(--card); padding:18px; }
+
+    .footer-space { height:40px; }
+
+    /* small helpers */
+    .badge-soft { background:#f1f6ff; color:var(--accent); padding:.35rem .6rem; border-radius:8px; font-weight:600; }
+    pre.notes { white-space:pre-wrap; background:#fafbff; padding:12px; border-radius:8px; color:#2b3440; }
+    .small-muted { color:var(--muted); font-size:14px; }
+    .avatar { width:44px; height:44px; border-radius:50%; background:linear-gradient(180deg,#e7f0ff,#ffffff); display:inline-flex; align-items:center; justify-content:center; font-weight:700; color:var(--accent); }
+  </style>
+</head>
+<body>
+
+<div class="app-shell container-fluid">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="d-flex align-items-center gap-3">
+      <div class="avatar">IT</div>
+      <div>
+        <h4>IT ServiceDesk</h4>
+        <div class="small-muted">Employee Portal</div>
+      </div>
+    </div>
+
+    <nav class="nav-section mt-4 d-grid">
+      <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.path == '/' %}active{% endif %}">
+        <i class="bi bi-speedometer2"></i> Dashboard
+      </a>
+
+      <a href="{{ url_for('new_ticket') }}" class="nav-link {% if request.path.startswith('/new') %}active{% endif %}">
+        <i class="bi bi-plus-circle"></i> New Ticket
+      </a>
+
+      <a href="{{ url_for('view_tickets') }}" class="nav-link {% if request.path.startswith('/tickets') %}active{% endif %}">
+        <i class="bi bi-card-list"></i> My Tickets
+      </a>
+
+      <a href="{{ url_for('knowledge') }}" class="nav-link {% if request.path.startswith('/knowledge') %}active{% endif %}">
+        <i class="bi bi-book"></i> Knowledge Base
+      </a>
+
+      {% if session.get('role') == 'Admin' %}
+      <a href="{{ url_for('manage_users') }}" class="nav-link {% if request.path.startswith('/admin') %}active{% endif %}">
+        <i class="bi bi-people"></i> User Management
+      </a>
+      {% endif %}
+
+      <a href="{{ url_for('logout') }}" class="nav-link mt-3 text-danger">
+        <i class="bi bi-box-arrow-right"></i> Logout ({{ session.get('username') }})
+      </a>
+    </nav>
+
+    <div class="mt-4 small-muted">
+      <div><strong>Quick Stats</strong></div>
+      <div class="mt-2">Status: <span class="badge bg-success">Online</span></div>
+      <div class="mt-2">Role: <span class="badge bg-light text-dark">{{ session.get('role') or 'Guest' }}</span></div>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main-area">
+    <div class="mb-3">
+      {% block top_hero %}{% endblock %}
+    </div>
+
+    <div class="row g-3">
+      <div class="col-12">
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+
+    <div class="footer-space"></div>
+  </main>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<!-- Chatbot Widget -->
+<style>
+#chatbot-btn {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  background:#0f63ff;
+  color: white;
+  font-size: 28px;
+  border:none;
+  box-shadow:0 6px 20px rgba(0,0,0,0.2);
+}
+#chatbox {
+  position: fixed;
+  bottom: 110px;
+  right: 25px;
+  width: 350px;
+  height: 420px;
+  background: white;
+  border-radius: 14px;
+  box-shadow:0 8px 25px rgba(0,0,0,0.15);
+  display:none;
+  flex-direction: column;
+}
+#chatbox-header {
+  background:#0f63ff;
+  color:white;
+  padding:12px;
+  border-radius:14px 14px 0 0;
+  font-weight:600;
+}
+#chatbox-messages {
+  flex:1;
+  overflow-y:auto;
+  padding:12px;
+  font-size:14px;
+}
+.my-msg { text-align:right; margin-bottom:10px; }
+.bot-msg {
+  background:#f0f5ff;
+  display:inline-block;
+  padding:8px 12px;
+  border-radius:10px;
+  margin-bottom:10px;
+}
+#chatbox-input {
+  padding:10px;
+  border-top:1px solid #eee;
+  display:flex;
+  gap:5px;
+}
+</style>
+
+<button id="chatbot-btn"><i class="bi bi-chat-dots"></i></button>
+
+<div id="chatbox">
+  <div id="chatbox-header">AI Assistant</div>
+  <div id="chatbox-messages"></div>
+
+  <div id="chatbox-input">
+    <input id="chat-input" class="form-control" placeholder="Type a message...">
+    <button id="send-btn" class="btn btn-primary btn-sm">Send</button>
+  </div>
+</div>
+
+<script>
+const btn = document.getElementById("chatbot-btn");
+const box = document.getElementById("chatbox");
+btn.onclick = ()=>{ box.style.display = box.style.display==="none"?"flex":"none"; };
+
+document.getElementById("send-btn").onclick = sendMessage;
+document.getElementById("chat-input").addEventListener("keypress", e=>{
+  if(e.key==="Enter") sendMessage();
+});
+
+function sendMessage(){
+  let input = document.getElementById("chat-input");
+  let text = input.value.trim();
+  if(!text) return;
+
+  // show user message
+  let msgBox = document.getElementById("chatbox-messages");
+  msgBox.innerHTML += `<div class='my-msg'><strong>You:</strong> ${text}</div>`;
+  msgBox.scrollTop = msgBox.scrollHeight;
+
+  // send to backend
+  fetch("/chatbot", {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({message:text})
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    msgBox.innerHTML += `<div class='bot-msg'><strong>AI:</strong> ${res.reply}</div>`;
+    msgBox.scrollTop = msgBox.scrollHeight;
+  });
+
+  input.value="";
+}
+</script>
+
+</body>
+</html>

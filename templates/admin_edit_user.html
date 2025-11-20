@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Edit User: {{ user[1] }}</h2>
+
+<form method="POST" class="mt-4">
+
+    <label>Role</label>
+    <select name="role" class="form-control">
+        <option {% if user[3] == 'Employee' %}selected{% endif %}>Employee</option>
+        <option {% if user[3] == 'IT Staff' %}selected{% endif %}>IT Staff</option>
+        <option {% if user[3] == 'Admin' %}selected{% endif %}>Admin</option>
+    </select>
+
+    <label class="mt-3">Reset Password (optional)</label>
+    <input name="password" class="form-control" placeholder="Leave blank to keep current">
+
+    <button class="btn btn-success mt-3">Save Changes</button>
+</form>
+
+{% endblock %}
