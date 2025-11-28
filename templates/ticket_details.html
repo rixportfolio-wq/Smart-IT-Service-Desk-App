@@ -11,11 +11,29 @@
     </div>
 
     <div class="text-end">
-      <div class="badge bg-light text-dark">{{ ticket[2] }}</div>
-      <div class="badge bg-warning text-dark ms-1">{{ ticket[3] }}</div>
-      <div class="badge bg-secondary text-white ms-1">{{ ticket[4] }}</div>
-    </div>
-  </div>
+
+  <!-- CATEGORY -->
+  <div class="badge bg-light text-dark">{{ ticket[2] }}</div>
+
+  <!-- PRIORITY -->
+  {% if session.get('role') == 'Admin' %}
+  <form method="POST" action="{{ url_for('update_priority', ticket_id=ticket[0]) }}" class="d-inline">
+    <select name="priority" class="form-select form-select-sm d-inline w-auto ms-1">
+      <option value="Low" {% if ticket[3]=='Low' %}selected{% endif %}>Low</option>
+      <option value="Medium" {% if ticket[3]=='Medium' %}selected{% endif %}>Medium</option>
+      <option value="High" {% if ticket[3]=='High' %}selected{% endif %}>High</option>
+    </select>
+    <button class="btn btn-dark btn-sm ms-1">Save</button>
+  </form>
+  {% else %}
+  <div class="badge bg-warning text-dark ms-1">{{ ticket[3] }}</div>
+  {% endif %}
+
+  <!-- STATUS -->
+  <div class="badge bg-secondary text-white ms-1">{{ ticket[4] }}</div>
+
+</div>
+
 
   <hr>
 
@@ -197,3 +215,4 @@ function openEditModal(id, text) {
 </style>
 
 {% endblock %}
+
