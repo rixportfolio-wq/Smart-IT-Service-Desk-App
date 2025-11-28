@@ -44,48 +44,53 @@
   <p><strong>Assigned To:</strong> {{ ticket[7] or 'Unassigned' }}</p>
 
   {% if session.get('role') in ['IT Staff','Admin'] %}
-  <hr>
-  <div class="row">
+<hr>
 
-    <!-- STATUS -->
-    <div class="col-md-4">
-      <form method="POST" action="{{ url_for('update_status', ticket_id=ticket[0]) }}">
-        <label class="form-label">Update Status</label>
-        <select name="status" class="form-select">
-          <option value="Open" {% if ticket[4]=='Open' %}selected{% endif %}>Open</option>
-          <option value="In Progress" {% if ticket[4]=='In Progress' %}selected{% endif %}>In Progress</option>
-          <option value="Resolved" {% if ticket[4]=='Resolved' %}selected{% endif %}>Resolved</option>
-        </select>
-        <button class="btn btn-success btn-sm mt-2">Update</button>
-      </form>
-    </div>
+<div class="ticket-grid">
 
-    <!-- ASSIGN -->
-    <div class="col-md-4">
-      <form method="POST" action="{{ url_for('assign', ticket_id=ticket[0]) }}">
-        <label class="form-label">Assign to (username)</label>
-        <input name="assigned_to" class="form-control" value="{{ ticket[7] or '' }}">
-        <button class="btn btn-warning btn-sm mt-2">Assign</button>
-      </form>
-    </div>
-
-    <!-- ADD NOTE -->
-    <div class="col-md-4">
-      <form method="POST" action="{{ url_for('add_note', ticket_id=ticket[0]) }}">
-        <label class="form-label">Add Note</label>
-        <textarea name="note" class="form-control" rows="2" required></textarea>
-
-        <div class="form-check mt-2">
-          <input class="form-check-input" type="checkbox" name="is_internal">
-          <label class="form-check-label">Internal Note</label>
-        </div>
-
-        <button class="btn btn-secondary btn-sm mt-2">Add Note</button>
-      </form>
-    </div>
-
+  <!-- STATUS -->
+  <div class="grid-card">
+    <h6>Update Status</h6>
+    <form method="POST" action="{{ url_for('update_status', ticket_id=ticket[0]) }}">
+      <select name="status" class="form-select">
+        <option value="Open" {% if ticket[4]=='Open' %}selected{% endif %}>Open</option>
+        <option value="In Progress" {% if ticket[4]=='In Progress' %}selected{% endif %}>In Progress</option>
+        <option value="Resolved" {% if ticket[4]=='Resolved' %}selected{% endif %}>Resolved</option>
+      </select>
+      <button class="btn btn-success btn-sm mt-2 w-100">Update Status</button>
+    </form>
   </div>
-  {% endif %}
+
+  <!-- ASSIGN -->
+  <div class="grid-card">
+    <h6>Assign Staff</h6>
+    <form method="POST" action="{{ url_for('assign', ticket_id=ticket[0]) }}">
+      <input name="assigned_to"
+             class="form-control"
+             placeholder="Enter username"
+             value="{{ ticket[7] or '' }}">
+      <button class="btn btn-warning btn-sm mt-2 w-100">Assign</button>
+    </form>
+  </div>
+
+  <!-- ADD NOTE -->
+  <div class="grid-card">
+    <h6>Add Note</h6>
+    <form method="POST" action="{{ url_for('add_note', ticket_id=ticket[0]) }}">
+      <textarea name="note" class="form-control" rows="3" required></textarea>
+
+      <div class="form-check mt-2">
+        <input class="form-check-input" type="checkbox" name="is_internal">
+        <label class="form-check-label">Internal Note</label>
+      </div>
+
+      <button class="btn btn-secondary btn-sm mt-2 w-100">Add Note</button>
+    </form>
+  </div>
+
+</div>
+{% endif %}
+
 
   <hr>
 
@@ -215,4 +220,5 @@ function openEditModal(id, text) {
 </style>
 
 {% endblock %}
+
 
