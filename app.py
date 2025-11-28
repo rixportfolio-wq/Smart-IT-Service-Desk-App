@@ -300,21 +300,21 @@ def new_ticket():
     if request.method == "POST":
         title = request.form["title"]
         category = request.form["category"]
-        priority = request.form["priority"]
         description = request.form["description"]
 
         conn = sqlite3.connect("database.db")
         cur = conn.cursor()
         cur.execute("""
-            INSERT INTO tickets (title, category, priority, status, description, created_by)
-            VALUES (?, ?, ?, 'Open', ?, ?)
-        """, (title, category, priority, description, session["username"]))
+            INSERT INTO tickets (title, category, status, description, created_by)
+            VALUES (?, ?, 'Open', ?, ?)
+        """, (title, category, description, session["username"]))
         conn.commit()
         conn.close()
 
         return redirect("/")
 
     return render_template("new_ticket.html")
+
 
 
 @app.route("/tickets")
@@ -683,5 +683,6 @@ import os
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
