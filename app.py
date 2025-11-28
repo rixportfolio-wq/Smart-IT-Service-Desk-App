@@ -316,6 +316,23 @@ def new_ticket():
     return render_template("new_ticket.html")
 
 
+@app.route("/update_priority/<int:ticket_id>", methods=["POST"])
+@login_required
+def update_priority(ticket_id):
+    if session.get("role") != "Admin":
+        return redirect("/")
+
+    priority = request.form["priority"]
+
+    conn = sqlite3.connect("database.db")
+    cur = conn.cursor()
+    cur.execute("UPDATE tickets SET priority=? WHERE id=?", (priority, ticket_id))
+    conn.commit()
+    conn.close()
+
+    return redirect(f"/ticket/{ticket_id}")
+
+
 
 @app.route("/tickets")
 def view_tickets():
@@ -683,6 +700,7 @@ import os
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
 
 
 
