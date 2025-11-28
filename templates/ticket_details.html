@@ -4,35 +4,39 @@
 <div class="recent-card">
 
   <!-- HEADER -->
-  <div class="d-flex justify-content-between align-items-start">
-    <div>
-      <h4>#{{ ticket[0] }} — {{ ticket[1] }}</h4>
-      <div class="small-muted">Created by {{ ticket[6] }}</div>
-    </div>
+  <div class="ticket-header">
 
-    <div class="text-end">
+  <div class="ticket-main">
+    <h3>#{{ ticket[0] }} — {{ ticket[1] }}</h3>
+    <p class="small-muted">Created by {{ ticket[6] }}</p>
+  </div>
 
-  <!-- CATEGORY -->
-  <div class="badge bg-light text-dark">{{ ticket[2] }}</div>
+  <div class="ticket-info">
 
-  <!-- PRIORITY -->
-  {% if session.get('role') == 'Admin' %}
-  <form method="POST" action="{{ url_for('update_priority', ticket_id=ticket[0]) }}" class="d-inline">
-    <select name="priority" class="form-select form-select-sm d-inline w-auto ms-1">
-      <option value="Low" {% if ticket[3]=='Low' %}selected{% endif %}>Low</option>
-      <option value="Medium" {% if ticket[3]=='Medium' %}selected{% endif %}>Medium</option>
-      <option value="High" {% if ticket[3]=='High' %}selected{% endif %}>High</option>
-    </select>
-    <button class="btn btn-dark btn-sm ms-1">Save</button>
-  </form>
-  {% else %}
-  <div class="badge bg-warning text-dark ms-1">{{ ticket[3] }}</div>
-  {% endif %}
+    <!-- CATEGORY -->
+    <span class="badge bg-light text-dark">{{ ticket[2] }}</span>
 
-  <!-- STATUS -->
-  <div class="badge bg-secondary text-white ms-1">{{ ticket[4] }}</div>
+    <!-- PRIORITY -->
+    {% if session.get('role') == 'Admin' %}
+    <form method="POST" action="{{ url_for('update_priority', ticket_id=ticket[0]) }}" class="d-flex gap-1 align-items-center">
+      <select name="priority" class="form-select form-select-sm w-auto">
+        <option value="Low" {% if ticket[3]=='Low' %}selected{% endif %}>Low</option>
+        <option value="Medium" {% if ticket[3]=='Medium' %}selected{% endif %}>Medium</option>
+        <option value="High" {% if ticket[3]=='High' %}selected{% endif %}>High</option>
+      </select>
+      <button class="btn btn-dark btn-sm">Save</button>
+    </form>
+    {% else %}
+    <span class="badge bg-warning text-dark">{{ ticket[3] }}</span>
+    {% endif %}
+
+    <!-- STATUS -->
+    <span class="badge bg-secondary">{{ ticket[4] }}</span>
+
+  </div>
 
 </div>
+
 
 
   <hr>
@@ -265,6 +269,7 @@ function openEditModal(id, text) {
 </style>
 
 {% endblock %}
+
 
 
 
